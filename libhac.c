@@ -13,12 +13,13 @@ static int client_sock;
 static int initLibHac(void);
 static void closeLibHac(void);
 
-void getRgbValues(int *red, int *green, int *blue, int *smoothness)
+int getRgbValues(int *red, int *green, int *blue, int *smoothness)
 {
 	int command;
 	struct _rgbPacket rgbPacket;
 
-	initLibHac();
+	if(initLibHac() < 0)
+		return -1;
 
 	command = CMD_NETWORK_GET_RGB;
 
@@ -31,9 +32,30 @@ void getRgbValues(int *red, int *green, int *blue, int *smoothness)
 	*smoothness = (int)rgbPacket.smoothness;
 	
 	closeLibHac();
+	return 0;
 }
 
-void setRgbValues(int red, int green, int blue, int smoothness)
+int getRelaisState(uint8_t *relais)
+{
+	int relaisState;
+	uint8_t command;
+	command = CMD_NETWORK_GET_RELAIS;
+	struct _relaisPacket relaisPacket;
+
+	if(initLibHac() < 0)
+		return -1;
+
+	send(client_sock, &command, 1, 0);
+	recv(client_sock, &relaisPacket, sizeof(relaisPacket), 0);
+
+	relaisState = relaisPacket.port;
+	*relais = relaisState;
+	
+	closeLibHac();
+	return 0;
+}
+
+int setRgbValues(int red, int green, int blue, int smoothness)
 {
 	int command;
 	struct _rgbPacket rgbPacket;
@@ -46,29 +68,61 @@ void setRgbValues(int red, int green, int blue, int smoothness)
 	rgbPacket.blue = (unsigned char)blue;
 	rgbPacket.smoothness = (unsigned char)smoothness;
 
-	initLibHac();
+	if(initLibHac() < 0)
+		return -1;
 	/* Modul 1 */
 	rgbPacket.headP.address = 1;
 	send(client_sock, &command, 1, 0);
 	send(client_sock, &rgbPacket, sizeof(rgbPacket), 0);
 	
 	closeLibHac();
-	initLibHac();
+	if(initLibHac() < 0)
+		return -1;
 
 	/* Modul 2 */
 	rgbPacket.headP.address = 3;
 	send(client_sock, &command, 1, 0);
 	send(client_sock, &rgbPacket, sizeof(rgbPacket), 0);
 	closeLibHac();
+	return 0;
 }
 
-void rgbBlink(int count, int color)
+int rgbBlink(int count, int color)
 {
 	int command;
-	initLibHac();
+	if(initLibHac() < 0)
+		return -1;
 	command = CMD_NETWORK_BLINK;
 	send(client_sock, &command, 1, 0);
 	closeLibHac();
+	return 0;
+}
+
+int setRelais(uint8_t relais)
+{
+	int command;
+	if(initLibHac() < 0)
+		return -1;
+	command = CMD_NETWORK_RELAIS;
+	send(client_sock, &command, 1, 0);
+	send(client_sock, &relais, 1, 0);
+	
+	closeLibHac();
+	return 0;
+}
+
+int toggleRelais(uint8_t relais)
+{
+	int command;
+	uint8_t relais_now;
+
+	if(getRelaisState(&relais_now) < 0)
+		return -1;
+
+	if(setRelais(relais_now ^ relais) < 0)
+		return -1;
+
+	return 0;
 }
 
 static void closeLibHac(void)
@@ -91,12 +145,15 @@ static int initLibHac(void)
 		printf("Client_sock konnte nicht erstellt werden\n");
 	server.sin_family = AF_INET;
 	server.sin_port = htons(HAD_PORT);
+//	inet_aton("127.0.0.1", &server.sin_addr);
 	inet_aton("192.168.0.2", &server.sin_addr);
 	
 
 	if(connect(client_sock, (struct sockaddr*)&server, sizeof(server)) != 0)
+	{
 		printf("Konnte nicht verbinden\n");
-	
+		return -1;
+	}	
 
 	return 0;
 }
