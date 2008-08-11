@@ -19,6 +19,7 @@ int setRgbValues(int red, int green, int blue, int smoothness);
 int setRelais(uint8_t relais);
 int getRelaisState(uint8_t *relais);
 int toggleRelais(uint8_t relais);
+int getTemperature(uint8_t modul, uint8_t sensor, float *temperature);
 
 struct headPacket
 {

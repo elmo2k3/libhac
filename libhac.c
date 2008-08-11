@@ -130,6 +130,27 @@ static void closeLibHac(void)
 	close(client_sock);
 }
 
+int getTemperature(uint8_t modul, uint8_t sensor, float *temperature)
+{
+	int command;
+	int16_t celsius, decicelsius;
+
+	if(initLibHac() < 0)
+		return -1;
+	command = CMD_NETWORK_GET_TEMPERATURE;
+	send(client_sock, &command, 1, 0);
+
+	send(client_sock, &modul, 1, 0);
+	send(client_sock, &sensor, 1, 0);
+
+	recv(client_sock, &celsius, sizeof(celsius), 0);
+	recv(client_sock, &decicelsius, sizeof(decicelsius), 0);
+
+	*temperature = (float)(celsius) + (float)(decicelsius)/10;
+	closeLibHac();
+	return 0;
+}
+
 static int initLibHac(void)
 {
 	struct sockaddr_in server,client;

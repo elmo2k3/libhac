@@ -3,3 +3,7 @@ libhac.so: libhac.o
 
 clean:
 	rm *.o libhac.so
+
+install: libhac.so
+	cp libhac.so /usr/lib/
+	cp libhac.h /usr/include/libhac/
