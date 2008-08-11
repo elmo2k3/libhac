@@ -5,6 +5,8 @@
 
 #define HAD_PORT 4123
 #define BUF_SIZE 1024
+
+#define CMD_NETWORK_QUIT 0
 #define CMD_NETWORK_RGB 1
 #define CMD_NETWORK_GET_RGB 2
 #define CMD_NETWORK_BLINK 3
@@ -12,6 +14,9 @@
 #define CMD_NETWORK_GET_VOLTAGE 5
 #define CMD_NETWORK_RELAIS 6
 #define CMD_NETWORK_GET_RELAIS 7
+
+int initLibHac(char *hostname);
+void closeLibHac(void);
 
 int getRgbValues(int *red, int *green, int *blue, int *smoothness);
 int rgbBlink(int count, int color);

@@ -10,16 +10,11 @@
 #include "libhac.h"
 
 static int client_sock;
-static int initLibHac(void);
-static void closeLibHac(void);
 
 int getRgbValues(int *red, int *green, int *blue, int *smoothness)
 {
 	int command;
 	struct _rgbPacket rgbPacket;
-
-	if(initLibHac() < 0)
-		return -1;
 
 	command = CMD_NETWORK_GET_RGB;
 
@@ -31,7 +26,6 @@ int getRgbValues(int *red, int *green, int *blue, int *smoothness)
 	*blue = (int)rgbPacket.blue;
 	*smoothness = (int)rgbPacket.smoothness;
 	
-	closeLibHac();
 	return 0;
 }
 
@@ -42,8 +36,6 @@ int getRelaisState(uint8_t *relais)
 	command = CMD_NETWORK_GET_RELAIS;
 	struct _relaisPacket relaisPacket;
 
-	if(initLibHac() < 0)
-		return -1;
 
 	send(client_sock, &command, 1, 0);
 	recv(client_sock, &relaisPacket, sizeof(relaisPacket), 0);
@@ -51,7 +43,6 @@ int getRelaisState(uint8_t *relais)
 	relaisState = relaisPacket.port;
 	*relais = relaisState;
 	
-	closeLibHac();
 	return 0;
 }
 
@@ -68,46 +59,33 @@ int setRgbValues(int red, int green, int blue, int smoothness)
 	rgbPacket.blue = (unsigned char)blue;
 	rgbPacket.smoothness = (unsigned char)smoothness;
 
-	if(initLibHac() < 0)
-		return -1;
 	/* Modul 1 */
 	rgbPacket.headP.address = 1;
 	send(client_sock, &command, 1, 0);
 	send(client_sock, &rgbPacket, sizeof(rgbPacket), 0);
 	
-	closeLibHac();
-	if(initLibHac() < 0)
-		return -1;
-
 	/* Modul 2 */
 	rgbPacket.headP.address = 3;
 	send(client_sock, &command, 1, 0);
 	send(client_sock, &rgbPacket, sizeof(rgbPacket), 0);
-	closeLibHac();
 	return 0;
 }
 
 int rgbBlink(int count, int color)
 {
 	int command;
-	if(initLibHac() < 0)
-		return -1;
 	command = CMD_NETWORK_BLINK;
 	send(client_sock, &command, 1, 0);
-	closeLibHac();
 	return 0;
 }
 
 int setRelais(uint8_t relais)
 {
 	int command;
-	if(initLibHac() < 0)
-		return -1;
 	command = CMD_NETWORK_RELAIS;
 	send(client_sock, &command, 1, 0);
 	send(client_sock, &relais, 1, 0);
 	
-	closeLibHac();
 	return 0;
 }
 
@@ -125,8 +103,11 @@ int toggleRelais(uint8_t relais)
 	return 0;
 }
 
-static void closeLibHac(void)
+void closeLibHac(void)
 {
+	int8_t command;
+	command = CMD_NETWORK_QUIT;
+	send(client_sock, &command, 1, 0);
 	close(client_sock);
 }
 
@@ -135,8 +116,6 @@ int getTemperature(uint8_t modul, uint8_t sensor, float *temperature)
 	int command;
 	int16_t celsius, decicelsius;
 
-	if(initLibHac() < 0)
-		return -1;
 	command = CMD_NETWORK_GET_TEMPERATURE;
 	send(client_sock, &command, 1, 0);
 
@@ -147,11 +126,10 @@ int getTemperature(uint8_t modul, uint8_t sensor, float *temperature)
 	recv(client_sock, &decicelsius, sizeof(decicelsius), 0);
 
 	*temperature = (float)(celsius) + (float)(decicelsius)/10;
-	closeLibHac();
 	return 0;
 }
 
-static int initLibHac(void)
+int initLibHac(char *hostname)
 {
 	struct sockaddr_in server,client;
 	unsigned char buf[BUF_SIZE];
@@ -167,7 +145,7 @@ static int initLibHac(void)
 	server.sin_family = AF_INET;
 	server.sin_port = htons(HAD_PORT);
 //	inet_aton("127.0.0.1", &server.sin_addr);
-	inet_aton("192.168.0.2", &server.sin_addr);
+	inet_aton(hostname, &server.sin_addr);
 	
 
 	if(connect(client_sock, (struct sockaddr*)&server, sizeof(server)) != 0)
