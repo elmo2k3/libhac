@@ -125,7 +125,33 @@ int getTemperature(uint8_t modul, uint8_t sensor, float *temperature)
 	recv(client_sock, &celsius, sizeof(celsius), 0);
 	recv(client_sock, &decicelsius, sizeof(decicelsius), 0);
 
-	*temperature = (float)(celsius) + (float)(decicelsius)/10;
+
+	*temperature = (float)(celsius) + (float)(decicelsius)/10000;
+	return 0;
+}
+
+int getVoltage(uint8_t modul, float *voltageReturn)
+{
+	int command;
+	int16_t voltage;
+
+	command = CMD_NETWORK_GET_VOLTAGE;
+	send(client_sock, &command, 1, 0);
+
+	send(client_sock, &modul, 1, 0);
+
+	recv(client_sock, &voltage, sizeof(voltage), 0);
+
+	switch(modul)
+	{
+		case 1: *voltageReturn = (float)ADC_MODUL_1/voltage;
+			break;
+		case 3: *voltageReturn = (float)ADC_MODUL_3/voltage;
+			break;
+		default: *voltageReturn = (float)ADC_MODUL_DEFAULT/voltage;
+			break;
+	}
+
 	return 0;
 }
 

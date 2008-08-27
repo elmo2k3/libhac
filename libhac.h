@@ -15,6 +15,13 @@
 #define CMD_NETWORK_RELAIS 6
 #define CMD_NETWORK_GET_RELAIS 7
 
+#define ADC_RES 1024
+
+/* Experimental discovered values */
+#define ADC_MODUL_1 ADC_RES*1.22
+#define ADC_MODUL_3 ADC_RES*1.3
+#define ADC_MODUL_DEFAULT ADC_RES*1.25
+
 int initLibHac(char *hostname);
 void closeLibHac(void);
 
@@ -25,6 +32,7 @@ int setRelais(uint8_t relais);
 int getRelaisState(uint8_t *relais);
 int toggleRelais(uint8_t relais);
 int getTemperature(uint8_t modul, uint8_t sensor, float *temperature);
+int getVoltage(uint8_t modul, float *voltageReturn);
 
 struct headPacket
 {
