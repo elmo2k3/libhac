@@ -1,7 +1,14 @@
-#include <sys/types.h>
+/* Header files for windows */
+#ifdef _WIN32
+#include <winsock.h>
+#include <io.h>
+/* Header files for linux */
+#else
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#endif
+#include <sys/types.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -9,7 +16,11 @@
 
 #include "libhac.h"
 
+#ifdef _WIN32
+static SOCKET client_sock;
+#else
 static int client_sock;
+#endif
 
 int getRgbValues(int *red, int *green, int *blue, int *smoothness)
 {
@@ -66,6 +77,11 @@ int setRgbValues(int red, int green, int blue, int smoothness)
 	
 	/* Modul 2 */
 	rgbPacket.headP.address = 3;
+	send(client_sock, &command, 1, 0);
+	send(client_sock, &rgbPacket, sizeof(rgbPacket), 0);
+	
+	/* Modul 3 */
+	rgbPacket.headP.address = 4;
 	send(client_sock, &command, 1, 0);
 	send(client_sock, &rgbPacket, sizeof(rgbPacket), 0);
 	return 0;
@@ -164,14 +180,19 @@ int initLibHac(char *hostname)
 	unsigned char command;
 
 	struct _rgbPacket rgbPacket;
-
 	client_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if(client_sock < 0)
 		printf("Client_sock konnte nicht erstellt werden\n");
 	server.sin_family = AF_INET;
 	server.sin_port = htons(HAD_PORT);
 //	inet_aton("127.0.0.1", &server.sin_addr);
+#ifdef _WIN32
+	unsigned long addr;
+	addr = inet_addr("192.168.0.2");
+	memcpy( (char *)&server.sin_addr, &addr, sizeof(addr));
+#else
 	inet_aton(hostname, &server.sin_addr);
+#endif
 	
 
 	if(connect(client_sock, (struct sockaddr*)&server, sizeof(server)) != 0)
