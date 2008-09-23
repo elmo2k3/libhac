@@ -25,6 +25,7 @@
 int initLibHac(char *hostname);
 void closeLibHac(void);
 
+int setRgbValueModul(int modul, int red, int green, int blue, int smoothness);
 int getRgbValues(int *red, int *green, int *blue, int *smoothness);
 int rgbBlink(int count, int color);
 int setRgbValues(int red, int green, int blue, int smoothness);

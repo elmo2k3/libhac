@@ -57,6 +57,25 @@ int getRelaisState(uint8_t *relais)
 	return 0;
 }
 
+int setRgbValueModul(int modul, int red, int green, int blue, int smoothness)
+{
+	int command;
+	struct _rgbPacket rgbPacket;
+
+	command = CMD_NETWORK_RGB;
+
+
+	rgbPacket.red = (unsigned char)red;
+	rgbPacket.green = (unsigned char)green;
+	rgbPacket.blue = (unsigned char)blue;
+	rgbPacket.smoothness = (unsigned char)smoothness;
+
+	rgbPacket.headP.address = modul;
+	send(client_sock, &command, 1, 0);
+	send(client_sock, &rgbPacket, sizeof(rgbPacket), 0);
+	return 0;
+}
+
 int setRgbValues(int red, int green, int blue, int smoothness)
 {
 	int command;
