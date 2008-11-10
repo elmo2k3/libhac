@@ -14,6 +14,10 @@
 #define CMD_NETWORK_GET_VOLTAGE 5
 #define CMD_NETWORK_RELAIS 6
 #define CMD_NETWORK_GET_RELAIS 7
+#define CMD_NETWORK_LED_DISPLAY_TEXT 8
+#define CMD_NETWORK_BASE_LCD_ON 9
+#define CMD_NETWORK_BASE_LCD_OFF 10
+#define CMD_NETWORK_BASE_LCD_TEXT 11
 
 #define ADC_RES 1024
 
@@ -34,6 +38,9 @@ int getRelaisState(uint8_t *relais);
 int toggleRelais(uint8_t relais);
 int getTemperature(uint8_t modul, uint8_t sensor, float *temperature);
 int getVoltage(uint8_t modul, float *voltageReturn);
+void ledSendText(char *string, int color, int shift, uint16_t lifetime);
+void setBaseLcdOn();
+void setBaseLcdOff();
 
 struct headPacket
 {

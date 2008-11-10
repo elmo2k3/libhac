@@ -22,6 +22,24 @@ static SOCKET client_sock;
 static int client_sock;
 #endif
 
+void setBaseLcdOn()
+{
+	int command;
+
+	command = CMD_NETWORK_BASE_LCD_ON;
+
+	send(client_sock, &command, 1, 0);
+}
+
+void setBaseLcdOff()
+{
+	int command;
+
+	command = CMD_NETWORK_BASE_LCD_OFF;
+
+	send(client_sock, &command, 1, 0);
+}
+
 int getRgbValues(int *red, int *green, int *blue, int *smoothness)
 {
 	int command;
@@ -74,6 +92,20 @@ int setRgbValueModul(int modul, int red, int green, int blue, int smoothness)
 	send(client_sock, &command, 1, 0);
 	send(client_sock, &rgbPacket, sizeof(rgbPacket), 0);
 	return 0;
+}
+
+void ledSendText(char *string, int color, int shift, uint16_t lifetime)
+{
+	uint8_t command;
+	uint16_t string_length;
+
+	command = CMD_NETWORK_LED_DISPLAY_TEXT;
+	string_length = strlen(string);
+
+	send(client_sock, &command, 1, 0);
+	send(client_sock, &string_length, 2, 0);
+	send(client_sock, &lifetime, 2, 0);
+	send(client_sock, string, string_length, 0);
 }
 
 int setRgbValues(int red, int green, int blue, int smoothness)
@@ -207,7 +239,7 @@ int initLibHac(char *hostname)
 //	inet_aton("127.0.0.1", &server.sin_addr);
 #ifdef _WIN32
 	unsigned long addr;
-	addr = inet_addr("192.168.0.2");
+	addr = inet_addr("127.0.0.1");
 	memcpy( (char *)&server.sin_addr, &addr, sizeof(addr));
 #else
 	inet_aton(hostname, &server.sin_addr);
