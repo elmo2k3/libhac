@@ -1,5 +1,6 @@
 /* Header files for windows */
 #ifdef _WIN32
+#warning Building win32 version
 #include <winsock.h>
 #include <io.h>
 /* Header files for linux */
@@ -38,6 +39,14 @@ void setBaseLcdOff()
 	command = CMD_NETWORK_BASE_LCD_OFF;
 
 	send(client_sock, &command, 1, 0);
+}
+
+void getHadState(struct _hadState *hadState)
+{
+	int command = CMD_NETWORK_GET_HAD_STATE;
+
+	send(client_sock, &command, 1, 0);
+	recv(client_sock, hadState, sizeof(struct _hadState), 0);
 }
 
 int getRgbValues(int *red, int *green, int *blue, int *smoothness)
@@ -222,6 +231,7 @@ int getVoltage(uint8_t modul, float *voltageReturn)
 	return 0;
 }
 
+
 int initLibHac(char *hostname)
 {
 	struct sockaddr_in server,client;
@@ -229,6 +239,10 @@ int initLibHac(char *hostname)
 	int recv_size;
 	int send_size;
 	unsigned char command;
+#ifdef _WIN32
+	WSADATA wsa;
+	WSAStartup(MAKEWORD(2,0), &wsa);
+#endif
 
 	struct _rgbPacket rgbPacket;
 	client_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -239,14 +253,17 @@ int initLibHac(char *hostname)
 //	inet_aton("127.0.0.1", &server.sin_addr);
 #ifdef _WIN32
 	unsigned long addr;
-	addr = inet_addr("127.0.0.1");
+	addr = inet_addr("192.168.0.2");
 	memcpy( (char *)&server.sin_addr, &addr, sizeof(addr));
 #else
 	inet_aton(hostname, &server.sin_addr);
 #endif
 	
-
+#ifdef _WIN32
+	if(connect(client_sock, (struct SOCKADDR *)&server, sizeof(server)) != 0)
+#else
 	if(connect(client_sock, (struct sockaddr*)&server, sizeof(server)) != 0)
+#endif
 	{
 		printf("Konnte nicht verbinden\n");
 		return -1;
