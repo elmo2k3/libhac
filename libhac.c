@@ -49,39 +49,56 @@ void getHadState(struct _hadState *hadState)
 	recv(client_sock, hadState, sizeof(struct _hadState), 0);
 }
 
-int getRgbValues(int *red, int *green, int *blue, int *smoothness)
+void setHadState(struct _hadState hadState)
 {
-	int command;
-	struct _rgbPacket rgbPacket;
-
-	command = CMD_NETWORK_GET_RGB;
+	int command = CMD_NETWORK_SET_HAD_STATE;
 
 	send(client_sock, &command, 1, 0);
-	recv(client_sock, &rgbPacket, sizeof(rgbPacket), 0);
-	
-	*red = (int)rgbPacket.red;
-	*green = (int)rgbPacket.green;
-	*blue = (int)rgbPacket.blue;
-	*smoothness = (int)rgbPacket.smoothness;
-	
-	return 0;
+	send(client_sock, &hadState, sizeof(hadState), 0);
 }
 
-int getRelaisState(uint8_t *relais)
+void setLedmatrixOff()
 {
-	int relaisState;
-	uint8_t command;
-	command = CMD_NETWORK_GET_RELAIS;
-	struct _relaisPacket relaisPacket;
+	struct _hadState hadState;
 
+	getHadState(&hadState);
+	hadState.ledmatrix_user_activated = 0;
+	setHadState(hadState);
+}
 
-	send(client_sock, &command, 1, 0);
-	recv(client_sock, &relaisPacket, sizeof(relaisPacket), 0);
+void setLedmatrixOn()
+{
+	struct _hadState hadState;
 
-	relaisState = relaisPacket.port;
-	*relais = relaisState;
-	
-	return 0;
+	getHadState(&hadState);
+	hadState.ledmatrix_user_activated = 1;
+	setHadState(hadState);
+}
+
+void setScrobblerOff()
+{
+	struct _hadState hadState;
+
+	getHadState(&hadState);
+	hadState.scrobbler_user_activated = 0;
+	setHadState(hadState);
+}
+
+void setScrobblerOn()
+{
+	struct _hadState hadState;
+
+	getHadState(&hadState);
+	hadState.scrobbler_user_activated = 1;
+	setHadState(hadState);
+}
+
+uint8_t getRelaisState()
+{
+	struct _hadState hadState;
+
+	getHadState(&hadState);
+	return hadState.relais_state;
 }
 
 int setRgbValueModul(int modul, int red, int green, int blue, int smoothness)
@@ -157,11 +174,12 @@ int rgbBlink(int count, int color)
 
 int setRelais(uint8_t relais)
 {
-	int command;
-	command = CMD_NETWORK_RELAIS;
-	send(client_sock, &command, 1, 0);
-	send(client_sock, &relais, 1, 0);
-	
+	struct _hadState hadState;
+
+	getHadState(&hadState);
+	hadState.relais_state = relais;
+	setHadState(hadState);
+
 	return 0;
 }
 

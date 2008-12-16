@@ -19,6 +19,7 @@
 #define CMD_NETWORK_BASE_LCD_OFF 10
 #define CMD_NETWORK_BASE_LCD_TEXT 11
 #define CMD_NETWORK_GET_HAD_STATE 12
+#define CMD_NETWORK_SET_HAD_STATE 13
 
 #define ADC_RES 1024
 
@@ -42,6 +43,8 @@ struct _hadState
 	uint8_t relais_state;
 	uint8_t input_state;
 	uint16_t last_voltage[3];
+	uint8_t scrobbler_user_activated;
+	uint8_t ledmatrix_user_activated;
 };
 
 struct headPacket
@@ -66,21 +69,26 @@ struct _relaisPacket
 	unsigned char port;
 };
 
-int initLibHac(char *hostname);
-void closeLibHac(void);
+extern int initLibHac(char *hostname);
+extern void closeLibHac(void);
 
-int setRgbValueModul(int modul, int red, int green, int blue, int smoothness);
-int getRgbValues(int *red, int *green, int *blue, int *smoothness);
-int rgbBlink(int count, int color);
-int setRgbValues(int red, int green, int blue, int smoothness);
-int setRelais(uint8_t relais);
-int getRelaisState(uint8_t *relais);
-int toggleRelais(uint8_t relais);
-int getTemperature(uint8_t modul, uint8_t sensor, float *temperature);
-int getVoltage(uint8_t modul, float *voltageReturn);
-void ledSendText(char *string, int color, int shift, uint16_t lifetime);
-void setBaseLcdOn();
-void setBaseLcdOff();
-void getHadState(struct _hadState *hadState);
+extern int setRgbValueModul(int modul, int red, int green, int blue, int smoothness);
+extern int rgbBlink(int count, int color);
+extern int setRgbValues(int red, int green, int blue, int smoothness);
+extern int setRelais(uint8_t relais);
+extern uint8_t getRelaisState();
+extern int toggleRelais(uint8_t relais);
+extern int getTemperature(uint8_t modul, uint8_t sensor, float *temperature);
+extern int getVoltage(uint8_t modul, float *voltageReturn);
+extern void ledSendText(char *string, int color, int shift, uint16_t lifetime);
+extern void setBaseLcdOn();
+extern void setBaseLcdOff();
+extern void getHadState(struct _hadState *hadState);
+extern void setHadState(struct _hadState hadState);
+extern void setScrobblerOn(void);
+extern void setScrobblerOff(void);
+extern void setLedmatrixOn(void);
+extern void setLedmatrixOff(void);
+
 #endif
 
