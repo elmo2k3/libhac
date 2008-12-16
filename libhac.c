@@ -57,6 +57,23 @@ void setHadState(struct _hadState hadState)
 	send(client_sock, &hadState, sizeof(hadState), 0);
 }
 
+int getLedmatrixState()
+{
+	struct _hadState hadState;
+
+	getHadState(&hadState);
+	return hadState.ledmatrix_user_activated;
+}
+
+int getScrobblerState()
+{
+	struct _hadState hadState;
+
+	getHadState(&hadState);
+	return hadState.scrobbler_user_activated;
+}
+
+
 void setLedmatrixOff()
 {
 	struct _hadState hadState;

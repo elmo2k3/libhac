@@ -89,6 +89,8 @@ extern void setScrobblerOn(void);
 extern void setScrobblerOff(void);
 extern void setLedmatrixOn(void);
 extern void setLedmatrixOff(void);
+extern int getScrobblerState();
+extern int getLedmatrixState();
 
 #endif
 
