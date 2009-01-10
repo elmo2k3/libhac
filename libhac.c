@@ -236,8 +236,11 @@ int getTemperature(uint8_t modul, uint8_t sensor, float *temperature)
 	recv(client_sock, &celsius, sizeof(celsius), 0);
 	recv(client_sock, &decicelsius, sizeof(decicelsius), 0);
 
+	if(celsius < 0)
+		*temperature = (float)(celsius) - (float)(decicelsius)/10000;
+	else
+		*temperature = (float)(celsius) + (float)(decicelsius)/10000;
 
-	*temperature = (float)(celsius) + (float)(decicelsius)/10000;
 	return 0;
 }
 
