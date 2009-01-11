@@ -20,6 +20,7 @@
 #define CMD_NETWORK_BASE_LCD_TEXT 11
 #define CMD_NETWORK_GET_HAD_STATE 12
 #define CMD_NETWORK_SET_HAD_STATE 13
+#define CMD_NETWORK_GET_HR20 14
 
 #define ADC_RES 1024
 
@@ -69,6 +70,15 @@ struct _relaisPacket
 	unsigned char port;
 };
 
+struct _hr20info
+{
+	int16_t tempis;
+	int16_t tempset;
+	int8_t valve;
+	int16_t voltage;
+	int8_t mode;
+};
+
 extern int initLibHac(char *hostname);
 extern void closeLibHac(void);
 
@@ -91,6 +101,7 @@ extern void setLedmatrixOn(void);
 extern void setLedmatrixOff(void);
 extern int getScrobblerState();
 extern int getLedmatrixState();
+extern void hr20GetStatus(int16_t *tempis, int16_t *tempset, int8_t *valve, int16_t *voltage, int8_t *mode);
 
 #endif
 
