@@ -21,6 +21,11 @@
 #define CMD_NETWORK_GET_HAD_STATE 12
 #define CMD_NETWORK_SET_HAD_STATE 13
 #define CMD_NETWORK_GET_HR20 14
+#define CMD_NETWORK_SET_HR20_TEMPERATURE 15
+#define CMD_NETWORK_SET_HR20_MODE 16
+
+#define HR20_MODE_MANU 1
+#define HR20_MODE_AUTO 2
 
 #define ADC_RES 1024
 
@@ -102,6 +107,8 @@ extern void setLedmatrixOff(void);
 extern int getScrobblerState();
 extern int getLedmatrixState();
 extern void hr20GetStatus(int16_t *tempis, int16_t *tempset, int8_t *valve, int16_t *voltage, int8_t *mode);
+extern void setHr20Temperature(int temperature);
+extern void setHr20Mode(int8_t mode);
 
 #endif
 

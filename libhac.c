@@ -67,6 +67,32 @@ void getHadState(struct _hadState *hadState)
 	recv(client_sock, hadState, sizeof(struct _hadState), 0);
 }
 
+void setHr20Temperature(int temperature)
+{
+	int command = CMD_NETWORK_SET_HR20_TEMPERATURE;
+
+	if(temperature % 5)
+		return;
+	if(temperature < 50 || temperature > 300)
+		return;
+
+	int16_t temp = (int16_t)temperature;
+
+	send(client_sock, &command, 1, 0);
+	send(client_sock, &temp, sizeof(temp), 0);
+}
+
+void setHr20Mode(int8_t mode)
+{
+	int command = CMD_NETWORK_SET_HR20_MODE;
+
+	if(mode != HR20_MODE_AUTO && mode != HR20_MODE_MANU)
+		return;
+
+	send(client_sock, &command, 1, 0);
+	send(client_sock, &mode, sizeof(mode), 0);
+}
+
 void setHadState(struct _hadState hadState)
 {
 	int command = CMD_NETWORK_SET_HAD_STATE;
