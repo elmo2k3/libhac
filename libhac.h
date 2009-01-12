@@ -65,20 +65,24 @@
  *******************************************************************************/
 struct _rgb
 {
-	uint8_t red;
-	uint8_t green;
-	uint8_t blue;
-	uint8_t smoothness;
+	uint8_t red; /**< red */
+	uint8_t green; /**< green */
+	uint8_t blue; /**< blue */
+	uint8_t smoothness; /**< smoothness (time for fading from one color to the other */
 };
 
+/*!
+ *******************************************************************************
+ * struct for getting the current state of had
+ *******************************************************************************/
 struct _hadState
 {
-	struct _rgb rgbModuleValues[3];
-	uint8_t relais_state;
-	uint8_t input_state;
-	uint16_t last_voltage[3];
-	uint8_t scrobbler_user_activated;
-	uint8_t ledmatrix_user_activated;
+	struct _rgb rgbModuleValues[3]; /**< array holding current values of each light module */
+	uint8_t relais_state; /**< state of the relais */
+	uint8_t input_state; /**< state of the input port */
+	uint16_t last_voltage[3]; /**< last voltage values of rf modules */
+	uint8_t scrobbler_user_activated; /**< scrobbler activated? */
+	uint8_t ledmatrix_user_activated; /**< ledmatrix activated? */
 };
 
 struct headPacket
@@ -112,30 +116,185 @@ struct _hr20info
 	int8_t mode;
 };
 
+/*!
+ *******************************************************************************
+ * init the network connection to had
+ *
+ * has to be called before any command can be executed
+ *
+ * \param *hostname currently this has to be an ip address!
+ *******************************************************************************/
 extern int initLibHac(char *hostname);
+
+/*!
+ *******************************************************************************
+ * terminate the network connection
+ *******************************************************************************/
 extern void closeLibHac(void);
 
+/*!
+ *******************************************************************************
+ * set rgb values for one specific module
+ *
+ * \param modul can be 16..18
+ * \param red red 0..255
+ * \param green green 0..255
+ * \param blue blue 0..255
+ * \param smoothness smoothness 0..255
+ *******************************************************************************/
 extern int setRgbValueModul(int modul, int red, int green, int blue, int smoothness);
+
+/*!
+ *******************************************************************************
+ * blink red 3 times
+ *******************************************************************************/
 extern int rgbBlink(int count, int color);
-extern int setRgbValues(int red, int green, int blue, int smoothness);
+
+//extern int setRgbValues(int red, int green, int blue, int smoothness);
+
+/*!
+ *******************************************************************************
+ * set relais port to parameter
+ *******************************************************************************/
 extern int setRelais(uint8_t relais);
+
+/*!
+ *******************************************************************************
+ * get the state of the relais port
+ *
+ * \returns uint8_t containing the state
+ *******************************************************************************/
 extern uint8_t getRelaisState();
+
+/*!
+ *******************************************************************************
+ * toggle the bits of the relais port
+ *
+ * internally gets the current state and does and xor with the argument
+ *
+ * \param relais byte to toggle
+ *******************************************************************************/
 extern int toggleRelais(uint8_t relais);
+
+/*!
+ *******************************************************************************
+ * get the last transmitted temperature of a module
+ *
+ * \param modul can currently only be 3
+ * \param sensor can currently only be 0 or 1
+ * \param *temperature temperature gets stored here
+ *******************************************************************************/
 extern int getTemperature(uint8_t modul, uint8_t sensor, float *temperature);
+
+/*!
+ *******************************************************************************
+ * get the last transmitted voltage of a module
+ *
+ * \param modul can currently only be 3
+ * \param *voltageReturn voltage gets stored here
+ *******************************************************************************/
 extern int getVoltage(uint8_t modul, float *voltageReturn);
+
+/*!
+ *******************************************************************************
+ * display a text on the led matrix display
+ *
+ * \param *string the string to be displayed
+ * \param lifetime how often the text should be scrolled through
+ *******************************************************************************/
 extern void ledSendText(char *string, int color, int shift, uint16_t lifetime);
+
+
+/*!
+ *******************************************************************************
+ * set the background light of the base station on
+ *******************************************************************************/
 extern void setBaseLcdOn();
+
+/*!
+ *******************************************************************************
+ * set the background light of the base station off
+ *******************************************************************************/
 extern void setBaseLcdOff();
+
+/*!
+ *******************************************************************************
+ * get the had state struct
+ *
+ * \param *hadState struct where the state will be stored
+ *******************************************************************************/
 extern void getHadState(struct _hadState *hadState);
+
+/*!
+ *******************************************************************************
+ * set the had state
+ *
+ * \param hadState state to be set
+ *******************************************************************************/
 extern void setHadState(struct _hadState hadState);
+
+/*!
+ *******************************************************************************
+ * deactivate scrobbler
+ *******************************************************************************/
 extern void setScrobblerOn(void);
+
+/*!
+ *******************************************************************************
+ * activate scrobbler
+ *******************************************************************************/
 extern void setScrobblerOff(void);
+
+/*!
+ *******************************************************************************
+ * activate ledmatrix
+ *******************************************************************************/
 extern void setLedmatrixOn(void);
+
+/*!
+ *******************************************************************************
+ * deactivate ledmatrix
+ *******************************************************************************/
 extern void setLedmatrixOff(void);
+
+/*!
+ *******************************************************************************
+ * get state of scrobbler (de-. activated?)
+ *******************************************************************************/
 extern int getScrobblerState();
+
+/*!
+ *******************************************************************************
+ * get state of ledmatrix (de-. activated?)
+ *******************************************************************************/
 extern int getLedmatrixState();
+
+/*!
+ *******************************************************************************
+ * get state of hr20 thermostat
+ *
+ * \param *tempis last measured temperature * 10
+ * \param *tempset user set temperature * 10
+ * \param *valve state of valve in percent
+ * \param *voltage last measured voltage of batteries * 100
+ * \param *mode 1 for manual, 2 for automatic control
+ *******************************************************************************/
 extern void hr20GetStatus(int16_t *tempis, int16_t *tempset, int8_t *valve, int16_t *voltage, int8_t *mode);
+
+/*!
+ *******************************************************************************
+ * set wanted temperature for hr20
+ *
+ * \param temperature wanted temperature * 10 (only 0.5°C steps)
+ *******************************************************************************/
 extern void setHr20Temperature(int temperature);
+
+/*!
+ *******************************************************************************
+ * set mode for hr20
+ *
+ * \param mode 1 for manual, 2 for automatic control
+ *******************************************************************************/
 extern void setHr20Mode(int8_t mode);
 
 #endif
