@@ -48,6 +48,8 @@ static SOCKET client_sock;
 static int client_sock;
 #endif
 
+static int connected;
+
 void hr20GetStatus(int16_t *tempis, int16_t *tempset, int8_t *valve, int16_t *voltage, int8_t *mode)
 {
 	int command;
@@ -254,7 +256,8 @@ int rgbBlink(int count, int color)
 {
 	int command;
 	command = CMD_NETWORK_BLINK;
-	send(client_sock, &command, 1, 0);
+	if(connected)
+		send(client_sock, &command, 1, 0);
 	return 0;
 }
 
@@ -360,7 +363,7 @@ int initLibHac(char *hostname)
 //	inet_aton("127.0.0.1", &server.sin_addr);
 #ifdef _WIN32
 	unsigned long addr;
-	addr = inet_addr("192.168.0.2");
+	addr = inet_addr(hostname);
 	memcpy( (char *)&server.sin_addr, &addr, sizeof(addr));
 #else
 	inet_aton(hostname, &server.sin_addr);
@@ -372,9 +375,12 @@ int initLibHac(char *hostname)
 	if(connect(client_sock, (struct sockaddr*)&server, sizeof(server)) != 0)
 #endif
 	{
+		connected = 0;
 		printf("Konnte nicht verbinden\n");
 		return -1;
 	}	
+	else
+		connected = 1;
 
 	return 0;
 }
