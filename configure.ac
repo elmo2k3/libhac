@@ -24,5 +24,5 @@ AC_TYPE_UINT8_T
 
 # Checks for library functions.
 AC_CHECK_FUNCS([socket])
-AC_OUTPUT(libhac.pc Makefile src/Makefile)
+AC_OUTPUT(libhac.pc Makefile src/Makefile doc/Makefile doc/libhac.doxy)
 
