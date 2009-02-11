@@ -3,6 +3,10 @@
 
 AC_PREREQ(2.61)
 AC_INIT(libhac, 0.2.3, bjoern@bjoern-b.de)
+m4_define([package_major_version], [0])
+m4_define([package_minor_version], [2])
+m4_define([package_micro_version], [3])
+m4_define([package_version], [package_major_version.package_minor_version.package_micro_version])
 AM_INIT_AUTOMAKE(libhac, 0.2.3)
 AC_CONFIG_SRCDIR([src/libhac.h])
 

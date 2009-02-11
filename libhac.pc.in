@@ -1,7 +1,7 @@
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 libdir=@libdir@
-includedir=@includedir@/libmpd-1.0/
+includedir=@includedir@/libhac-0.2/
 
 Name: libhac
 Description: libhac
