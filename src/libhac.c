@@ -349,6 +349,8 @@ int initLibHac(char *hostname)
 	int recv_size;
 	int send_size;
 	unsigned char command;
+	struct timeval timeout;
+	memset(&timeout, 0, sizeof(timeout));
 #ifdef _WIN32
 	WSADATA wsa;
 	WSAStartup(MAKEWORD(2,0), &wsa);
@@ -368,7 +370,9 @@ int initLibHac(char *hostname)
 #else
 	inet_aton(hostname, &server.sin_addr);
 #endif
-	
+
+	timeout.tv_sec = 2;
+//	setsockopt(client_sock, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(struct timeval));
 #ifdef _WIN32
 	if(connect(client_sock, (struct SOCKADDR *)&server, sizeof(server)) != 0)
 #else
@@ -381,6 +385,9 @@ int initLibHac(char *hostname)
 	}	
 	else
 		connected = 1;
+	
+	timeout.tv_sec = 0;
+//	setsockopt(client_sock, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(struct timeval));
 
 	return 0;
 }
