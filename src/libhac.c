@@ -50,22 +50,13 @@ static int client_sock;
 
 static int connected;
 
-void hr20GetStatus(int16_t *tempis, int16_t *tempset, int8_t *valve, int16_t *voltage, int8_t *mode)
+void hr20GetStatus(struct _hr20info *hr20info)
 {
 	int command;
-	struct _hr20info hr20info;
 	
 	command = CMD_NETWORK_GET_HR20;
-	
 	send(client_sock, &command, 1, 0);
-	
-	recv(client_sock, &hr20info, sizeof(hr20info), 0);
-
-	*tempis = hr20info.tempis;
-	*tempset = hr20info.tempset;
-	*valve = hr20info.valve;
-	*voltage = hr20info.voltage;
-	*mode = hr20info.mode;
+	recv(client_sock, hr20info, sizeof(struct _hr20info), 0);
 }
 
 void setBaseLcdOn()

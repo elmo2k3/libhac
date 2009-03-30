@@ -114,6 +114,8 @@ struct _hr20info
 	int8_t valve;
 	int16_t voltage;
 	int8_t mode;
+//	int16_t auto_temperature[4]; /**< the four different temperatures for automatic mode */
+//	int8_t timer_mode;
 };
 
 /*!
@@ -273,13 +275,9 @@ extern int getLedmatrixState();
  *******************************************************************************
  * get state of hr20 thermostat
  *
- * \param *tempis last measured temperature * 10
- * \param *tempset user set temperature * 10
- * \param *valve state of valve in percent
- * \param *voltage last measured voltage of batteries * 100
- * \param *mode 1 for manual, 2 for automatic control
+ * \param *hr20info struct where the data will be stored
  *******************************************************************************/
-extern void hr20GetStatus(int16_t *tempis, int16_t *tempset, int8_t *valve, int16_t *voltage, int8_t *mode);
+extern void hr20GetStatus(struct _hr20info *hr20info);
 
 /*!
  *******************************************************************************
