@@ -10,6 +10,9 @@ m4_define([package_version], [package_major_version.package_minor_version.packag
 AM_INIT_AUTOMAKE(libhac, 0.2.5)
 AC_CONFIG_SRCDIR([src/libhac.h])
 
+LIBHAC_LIBTOOL_VERSION=1:0:0
+AC_SUBST(LIBHAC_LIBTOOL_VERSION)
+
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_LIBTOOL

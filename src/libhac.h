@@ -125,8 +125,9 @@ struct _hr20info
  * has to be called before any command can be executed
  *
  * \param *hostname currently this has to be an ip address!
+ * \param *password password to connect to had
  *******************************************************************************/
-extern int initLibHac(char *hostname);
+extern int initLibHac(char *hostname, char *password);
 
 /*!
  *******************************************************************************

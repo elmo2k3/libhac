@@ -39,6 +39,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <openssl/md5.h>
 
 #include "libhac.h"
 
@@ -333,7 +334,7 @@ int getVoltage(uint8_t modul, float *voltageReturn)
 }
 
 
-int initLibHac(char *hostname)
+int initLibHac(char *hostname, char *password)
 {
 	struct sockaddr_in server,client;
 	unsigned char buf[BUF_SIZE];
@@ -341,6 +342,7 @@ int initLibHac(char *hostname)
 	int send_size;
 	unsigned char command;
 	struct timeval timeout;
+	time_t rawtime;
 	memset(&timeout, 0, sizeof(timeout));
 #ifdef _WIN32
 	WSADATA wsa;
@@ -375,7 +377,22 @@ int initLibHac(char *hostname)
 		return -1;
 	}	
 	else
+	{
+		char pass_salted[200];
+		char buf[255];
+		unsigned char digest[MD5_DIGEST_LENGTH];
 		connected = 1;
+		rawtime = time(NULL);
+		sprintf(pass_salted,"%s%lld",password,rawtime);
+		MD5(pass_salted, strlen(pass_salted), digest);
+		send(client_sock, digest, MD5_DIGEST_LENGTH, 0);
+		recv(client_sock, buf, 1, 0);
+		if(buf[0] == 0)
+		{
+			close(client_sock);
+			return -2;
+		}
+	}
 	
 	timeout.tv_sec = 0;
 //	setsockopt(client_sock, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(struct timeval));
