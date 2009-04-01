@@ -385,11 +385,12 @@ int initLibHac(char *hostname, char *password)
 		rawtime = time(NULL);
 		sprintf(pass_salted,"%s%lld",password,rawtime);
 		MD5(pass_salted, strlen(pass_salted), digest);
+		printf("pass_salted = %s\n", pass_salted);
 		send(client_sock, digest, MD5_DIGEST_LENGTH, 0);
 		recv(client_sock, buf, 1, 0);
 		if(buf[0] == 0)
 		{
-			close(client_sock);
+//			close(client_sock);
 			return -2;
 		}
 	}
