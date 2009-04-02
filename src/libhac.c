@@ -42,6 +42,7 @@
 #include <openssl/md5.h>
 
 #include "libhac.h"
+#include "../version.h"
 
 #ifdef _WIN32
 static SOCKET client_sock;
@@ -50,6 +51,11 @@ static int client_sock;
 #endif
 
 static int connected;
+
+char *libhacVersion(void)
+{
+	return VERSION;
+}
 
 void hr20GetStatus(struct _hr20info *hr20info)
 {

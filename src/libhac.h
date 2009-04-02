@@ -296,5 +296,7 @@ extern void setHr20Temperature(int temperature);
  *******************************************************************************/
 extern void setHr20Mode(int8_t mode);
 
+extern char *libhacVersion(void);
+
 #endif
 
