@@ -348,7 +348,7 @@ int initLibHac(char *hostname, char *password)
 	int send_size;
 	unsigned char command;
 	struct timeval timeout;
-	time_t rawtime;
+	uint32_t rawtime;
 	memset(&timeout, 0, sizeof(timeout));
 #ifdef _WIN32
 	WSADATA wsa;
@@ -388,10 +388,9 @@ int initLibHac(char *hostname, char *password)
 		char buf[255];
 		unsigned char digest[MD5_DIGEST_LENGTH];
 		connected = 1;
-		rawtime = time(NULL);
+		recv(client_sock, &rawtime, sizeof(rawtime), 0);
 		sprintf(pass_salted,"%s%lld",password,rawtime);
 		MD5(pass_salted, strlen(pass_salted), digest);
-		printf("pass_salted = %s\n", pass_salted);
 		send(client_sock, digest, MD5_DIGEST_LENGTH, 0);
 		recv(client_sock, buf, 1, 0);
 		if(buf[0] == 0)
