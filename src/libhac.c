@@ -33,6 +33,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <netdb.h>
 #endif
 #include <sys/types.h>
 #include <unistd.h>
@@ -41,7 +42,6 @@
 #include <string.h>
 #include <openssl/md5.h>
 #include <errno.h>
-#include <netdb.h>
 
 #include "libhac.h"
 #include "../version.h"
