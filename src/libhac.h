@@ -50,6 +50,7 @@
 #define CMD_NETWORK_GET_HR20 14
 #define CMD_NETWORK_SET_HR20_TEMPERATURE 15
 #define CMD_NETWORK_SET_HR20_MODE 16
+#define CMD_NETWORK_SET_HR20_AUTO_TEMPERATURE 17
 
 #define HR20_MODE_MANU 1
 #define HR20_MODE_AUTO 2
@@ -116,7 +117,7 @@ struct _hr20info
 	int8_t valve;
 	int16_t voltage;
 	int8_t mode;
-//	int16_t auto_temperature[4]; /**< the four different temperatures for automatic mode */
+	int16_t auto_temperature[4]; /**< the four different temperatures for automatic mode */
 //	int8_t timer_mode;
 };
 
@@ -289,6 +290,8 @@ extern void hr20GetStatus(struct _hr20info *hr20info);
  * \param temperature wanted temperature * 10 (only 0.5°C steps)
  *******************************************************************************/
 extern void setHr20Temperature(int temperature);
+
+extern void setHr20AutoTemperature(int slot, int temperature);
 
 /*!
  *******************************************************************************

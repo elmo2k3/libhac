@@ -117,6 +117,25 @@ void setHr20Temperature(int temperature)
 	}
 }
 
+void setHr20AutoTemperature(int slot, int temperature)
+{
+	int command = CMD_NETWORK_SET_HR20_AUTO_TEMPERATURE;
+
+	if(temperature % 5)
+		return;
+	if(temperature < 50 || temperature > 300)
+		return;
+
+	int16_t temp = (int16_t)temperature;
+	int8_t Slot = (int8_t)slot;
+	if(connected)
+	{
+		send(client_sock, &command, 1, 0);
+		send(client_sock, &Slot, sizeof(Slot), 0);
+		send(client_sock, &temp, sizeof(temp), 0);
+	}
+}
+
 void setHr20Mode(int8_t mode)
 {
 	int command = CMD_NETWORK_SET_HR20_MODE;
