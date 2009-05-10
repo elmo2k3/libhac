@@ -40,6 +40,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <openssl/md5.h>
+#include <errno.h>
+#include <netdb.h>
 
 #include "libhac.h"
 #include "../version.h"
@@ -50,46 +52,52 @@ static SOCKET client_sock;
 static int client_sock;
 #endif
 
-static int connected;
+static int connected = 0;
 
 char *libhacVersion(void)
 {
-	return VERSION;
+	return LIBHAC_VERSION;
 }
 
 void hr20GetStatus(struct _hr20info *hr20info)
 {
 	int command;
-	
-	command = CMD_NETWORK_GET_HR20;
-	send(client_sock, &command, 1, 0);
-	recv(client_sock, hr20info, sizeof(struct _hr20info), 0);
+	if(connected)
+	{
+		command = CMD_NETWORK_GET_HR20;
+		send(client_sock, &command, 1, 0);
+		recv(client_sock, hr20info, sizeof(struct _hr20info), 0);
+	}
 }
 
 void setBaseLcdOn()
 {
 	int command;
-
-	command = CMD_NETWORK_BASE_LCD_ON;
-
-	send(client_sock, &command, 1, 0);
+	if(connected)
+	{
+		command = CMD_NETWORK_BASE_LCD_ON;
+		send(client_sock, &command, 1, 0);
+	}
 }
 
 void setBaseLcdOff()
 {
 	int command;
-
-	command = CMD_NETWORK_BASE_LCD_OFF;
-
-	send(client_sock, &command, 1, 0);
+	if(connected)
+	{
+		command = CMD_NETWORK_BASE_LCD_OFF;
+		send(client_sock, &command, 1, 0);
+	}
 }
 
 void getHadState(struct _hadState *hadState)
 {
 	int command = CMD_NETWORK_GET_HAD_STATE;
-
-	send(client_sock, &command, 1, 0);
-	recv(client_sock, hadState, sizeof(struct _hadState), 0);
+	if(connected)
+	{
+		send(client_sock, &command, 1, 0);
+		recv(client_sock, hadState, sizeof(struct _hadState), 0);
+	}
 }
 
 void setHr20Temperature(int temperature)
@@ -102,9 +110,11 @@ void setHr20Temperature(int temperature)
 		return;
 
 	int16_t temp = (int16_t)temperature;
-
-	send(client_sock, &command, 1, 0);
-	send(client_sock, &temp, sizeof(temp), 0);
+	if(connected)
+	{
+		send(client_sock, &command, 1, 0);
+		send(client_sock, &temp, sizeof(temp), 0);
+	}
 }
 
 void setHr20Mode(int8_t mode)
@@ -113,17 +123,21 @@ void setHr20Mode(int8_t mode)
 
 	if(mode != HR20_MODE_AUTO && mode != HR20_MODE_MANU)
 		return;
-
-	send(client_sock, &command, 1, 0);
-	send(client_sock, &mode, sizeof(mode), 0);
+	if(connected)
+	{
+		send(client_sock, &command, 1, 0);
+		send(client_sock, &mode, sizeof(mode), 0);
+	}
 }
 
 void setHadState(struct _hadState hadState)
 {
 	int command = CMD_NETWORK_SET_HAD_STATE;
-
-	send(client_sock, &command, 1, 0);
-	send(client_sock, &hadState, sizeof(hadState), 0);
+	if(connected)
+	{
+		send(client_sock, &command, 1, 0);
+		send(client_sock, &hadState, sizeof(hadState), 0);
+	}
 }
 
 int getLedmatrixState()
@@ -187,13 +201,12 @@ uint8_t getRelaisState()
 	return hadState.relais_state;
 }
 
-int setRgbValueModul(int modul, int red, int green, int blue, int smoothness)
+void setRgbValueModul(int modul, int red, int green, int blue, int smoothness)
 {
 	int command;
 	struct _rgbPacket rgbPacket;
 
 	command = CMD_NETWORK_RGB;
-
 
 	rgbPacket.red = (unsigned char)red;
 	rgbPacket.green = (unsigned char)green;
@@ -201,9 +214,11 @@ int setRgbValueModul(int modul, int red, int green, int blue, int smoothness)
 	rgbPacket.smoothness = (unsigned char)smoothness;
 
 	rgbPacket.headP.address = modul;
-	send(client_sock, &command, 1, 0);
-	send(client_sock, &rgbPacket, sizeof(rgbPacket), 0);
-	return 0;
+	if(connected)
+	{
+		send(client_sock, &command, 1, 0);
+		send(client_sock, &rgbPacket, sizeof(rgbPacket), 0);
+	}
 }
 
 void ledSendText(char *string, int color, int shift, uint16_t lifetime)
@@ -213,136 +228,137 @@ void ledSendText(char *string, int color, int shift, uint16_t lifetime)
 
 	command = CMD_NETWORK_LED_DISPLAY_TEXT;
 	string_length = strlen(string);
-
-	send(client_sock, &command, 1, 0);
-	send(client_sock, &string_length, 2, 0);
-	send(client_sock, &lifetime, 2, 0);
-	send(client_sock, string, string_length, 0);
+	if(connected)
+	{
+		send(client_sock, &command, 1, 0);
+		send(client_sock, &string_length, 2, 0);
+		send(client_sock, &lifetime, 2, 0);
+		send(client_sock, string, string_length, 0);
+	}
 }
 
-int setRgbValues(int red, int green, int blue, int smoothness)
+void setRgbValues(int red, int green, int blue, int smoothness)
 {
 	int command;
 	struct _rgbPacket rgbPacket;
 
 	command = CMD_NETWORK_RGB;
-
-
+	
 	rgbPacket.red = (unsigned char)red;
 	rgbPacket.green = (unsigned char)green;
 	rgbPacket.blue = (unsigned char)blue;
 	rgbPacket.smoothness = (unsigned char)smoothness;
 
-	/* Modul 1 */
-	rgbPacket.headP.address = 1;
-	send(client_sock, &command, 1, 0);
-	send(client_sock, &rgbPacket, sizeof(rgbPacket), 0);
-	
-	/* Modul 2 */
-	rgbPacket.headP.address = 3;
-	send(client_sock, &command, 1, 0);
-	send(client_sock, &rgbPacket, sizeof(rgbPacket), 0);
-	
-	/* Modul 3 */
-	rgbPacket.headP.address = 4;
-	send(client_sock, &command, 1, 0);
-	send(client_sock, &rgbPacket, sizeof(rgbPacket), 0);
-	return 0;
+	if(connected)
+	{
+		/* Modul 1 */
+		rgbPacket.headP.address = 1;
+		send(client_sock, &command, 1, 0);
+		send(client_sock, &rgbPacket, sizeof(rgbPacket), 0);
+		
+		/* Modul 2 */
+		rgbPacket.headP.address = 3;
+		send(client_sock, &command, 1, 0);
+		send(client_sock, &rgbPacket, sizeof(rgbPacket), 0);
+		
+		/* Modul 3 */
+		rgbPacket.headP.address = 4;
+		send(client_sock, &command, 1, 0);
+		send(client_sock, &rgbPacket, sizeof(rgbPacket), 0);
+	}
 }
 
-int rgbBlink(int count, int color)
+void rgbBlink(int count, int color)
 {
 	int command;
 	command = CMD_NETWORK_BLINK;
 	if(connected)
 		send(client_sock, &command, 1, 0);
-	return 0;
 }
 
-int setRelais(uint8_t relais)
+void setRelais(uint8_t relais)
 {
 	struct _hadState hadState;
 
 	getHadState(&hadState);
 	hadState.relais_state = relais;
 	setHadState(hadState);
-
-	return 0;
 }
 
-int toggleRelais(uint8_t relais)
+void toggleRelais(uint8_t relais)
 {
 	int command;
 	uint8_t relais_now;
 
-	if(getRelaisState(&relais_now) < 0)
-		return -1;
-
-	if(setRelais(relais_now ^ relais) < 0)
-		return -1;
-
-	return 0;
+	getRelaisState(&relais_now); 
+	setRelais(relais_now ^ relais);
 }
 
 void closeLibHac(void)
 {
 	int8_t command;
-	command = CMD_NETWORK_QUIT;
-	send(client_sock, &command, 1, 0);
-	close(client_sock);
+	if(connected)
+	{
+		command = CMD_NETWORK_QUIT;
+		send(client_sock, &command, 1, 0);
+		close(client_sock);
+		connected = 0;
+	}
 }
 
-int getTemperature(uint8_t modul, uint8_t sensor, float *temperature)
+void getTemperature(uint8_t modul, uint8_t sensor, float *temperature)
 {
 	int command;
 	int16_t celsius, decicelsius;
 
 	command = CMD_NETWORK_GET_TEMPERATURE;
-	send(client_sock, &command, 1, 0);
 
-	send(client_sock, &modul, 1, 0);
-	send(client_sock, &sensor, 1, 0);
+	if(connected)
+	{
+		send(client_sock, &command, 1, 0);
+		send(client_sock, &modul, 1, 0);
+		send(client_sock, &sensor, 1, 0);
 
-	recv(client_sock, &celsius, sizeof(celsius), 0);
-	recv(client_sock, &decicelsius, sizeof(decicelsius), 0);
+		recv(client_sock, &celsius, sizeof(celsius), 0);
+		recv(client_sock, &decicelsius, sizeof(decicelsius), 0);
 
-	if(celsius < 0)
-		*temperature = (float)(celsius) - (float)(decicelsius)/10000;
-	else
-		*temperature = (float)(celsius) + (float)(decicelsius)/10000;
-
-	return 0;
+		if(celsius < 0)
+			*temperature = (float)(celsius) - (float)(decicelsius)/10000;
+		else
+			*temperature = (float)(celsius) + (float)(decicelsius)/10000;
+	}
 }
 
-int getVoltage(uint8_t modul, float *voltageReturn)
+void getVoltage(uint8_t modul, float *voltageReturn)
 {
 	int command;
 	int16_t voltage;
 
 	command = CMD_NETWORK_GET_VOLTAGE;
-	send(client_sock, &command, 1, 0);
 
-	send(client_sock, &modul, 1, 0);
-
-	recv(client_sock, &voltage, sizeof(voltage), 0);
-
-	switch(modul)
+	if(connected)
 	{
-		case 1: *voltageReturn = (float)ADC_MODUL_1/voltage;
-			break;
-		case 3: *voltageReturn = (float)ADC_MODUL_3/voltage;
-			break;
-		default: *voltageReturn = (float)ADC_MODUL_DEFAULT/voltage;
-			break;
-	}
+		send(client_sock, &command, 1, 0);
+		send(client_sock, &modul, 1, 0);
+		recv(client_sock, &voltage, sizeof(voltage), 0);
 
-	return 0;
+		switch(modul)
+		{
+			case 1: *voltageReturn = (float)ADC_MODUL_1/voltage;
+				break;
+			case 3: *voltageReturn = (float)ADC_MODUL_3/voltage;
+				break;
+			default: *voltageReturn = (float)ADC_MODUL_DEFAULT/voltage;
+				break;
+		}
+	}
 }
 
 
 int initLibHac(char *hostname, char *password)
 {
 	struct sockaddr_in server,client;
+	struct hostent *he;
 	unsigned char buf[BUF_SIZE];
 	int recv_size;
 	int send_size;
@@ -358,46 +374,47 @@ int initLibHac(char *hostname, char *password)
 	struct _rgbPacket rgbPacket;
 	client_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if(client_sock < 0)
-		printf("Client_sock konnte nicht erstellt werden\n");
+		return errno;
 	server.sin_family = AF_INET;
 	server.sin_port = htons(HAD_PORT);
-//	inet_aton("127.0.0.1", &server.sin_addr);
-#ifdef _WIN32
-	unsigned long addr;
-	addr = inet_addr(hostname);
-	memcpy( (char *)&server.sin_addr, &addr, sizeof(addr));
-#else
-	inet_aton(hostname, &server.sin_addr);
-#endif
-
+	if(!(he=gethostbyname(hostname)))
+	{
+		return errno;
+	}
+	if(he->h_addrtype == AF_INET)
+	{
+		memcpy((char*)&server.sin_addr.s_addr,(char*)he->h_addr,
+			he->h_length);
+	}
+	else
+	{
+		return -1;
+	}
 	timeout.tv_sec = 2;
-//	setsockopt(client_sock, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(struct timeval));
+	setsockopt(client_sock, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(struct timeval));
 #ifdef _WIN32
 	if(connect(client_sock, (struct SOCKADDR *)&server, sizeof(server)) != 0)
 #else
 	if(connect(client_sock, (struct sockaddr*)&server, sizeof(server)) != 0)
 #endif
 	{
-		connected = 0;
-		printf("Konnte nicht verbinden\n");
-		return -1;
+		return errno;
 	}	
 	else
 	{
 		char pass_salted[200];
 		char buf[255];
 		unsigned char digest[MD5_DIGEST_LENGTH];
-		connected = 1;
 		recv(client_sock, &rawtime, sizeof(rawtime), 0);
-		sprintf(pass_salted,"%s%lld",password,rawtime);
+		sprintf(pass_salted,"%s%lld",password,(long long int)rawtime);
 		MD5(pass_salted, strlen(pass_salted), digest);
 		send(client_sock, digest, MD5_DIGEST_LENGTH, 0);
 		recv(client_sock, buf, 1, 0);
 		if(buf[0] == 0)
 		{
-//			close(client_sock);
-			return -2;
+			return LIBHAC_WRONG_PASSWORD;
 		}
+		connected = 1;
 	}
 	
 	timeout.tv_sec = 0;

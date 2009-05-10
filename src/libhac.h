@@ -31,6 +31,8 @@
 #define HAD_PORT 4123
 #define BUF_SIZE 1024
 
+#define LIBHAC_WRONG_PASSWORD 200
+
 #define CMD_NETWORK_QUIT 0
 #define CMD_NETWORK_RGB 1
 #define CMD_NETWORK_GET_RGB 2
@@ -145,13 +147,13 @@ extern void closeLibHac(void);
  * \param blue blue 0..255
  * \param smoothness smoothness 0..255
  *******************************************************************************/
-extern int setRgbValueModul(int modul, int red, int green, int blue, int smoothness);
+extern void setRgbValueModul(int modul, int red, int green, int blue, int smoothness);
 
 /*!
  *******************************************************************************
  * blink red 3 times
  *******************************************************************************/
-extern int rgbBlink(int count, int color);
+extern void rgbBlink(int count, int color);
 
 //extern int setRgbValues(int red, int green, int blue, int smoothness);
 
@@ -159,7 +161,7 @@ extern int rgbBlink(int count, int color);
  *******************************************************************************
  * set relais port to parameter
  *******************************************************************************/
-extern int setRelais(uint8_t relais);
+extern void setRelais(uint8_t relais);
 
 /*!
  *******************************************************************************
@@ -177,7 +179,7 @@ extern uint8_t getRelaisState();
  *
  * \param relais byte to toggle
  *******************************************************************************/
-extern int toggleRelais(uint8_t relais);
+extern void toggleRelais(uint8_t relais);
 
 /*!
  *******************************************************************************
@@ -187,7 +189,7 @@ extern int toggleRelais(uint8_t relais);
  * \param sensor can currently only be 0 or 1
  * \param *temperature temperature gets stored here
  *******************************************************************************/
-extern int getTemperature(uint8_t modul, uint8_t sensor, float *temperature);
+extern void getTemperature(uint8_t modul, uint8_t sensor, float *temperature);
 
 /*!
  *******************************************************************************
@@ -196,7 +198,7 @@ extern int getTemperature(uint8_t modul, uint8_t sensor, float *temperature);
  * \param modul can currently only be 3
  * \param *voltageReturn voltage gets stored here
  *******************************************************************************/
-extern int getVoltage(uint8_t modul, float *voltageReturn);
+extern void getVoltage(uint8_t modul, float *voltageReturn);
 
 /*!
  *******************************************************************************

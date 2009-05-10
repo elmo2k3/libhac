@@ -1,1 +1,1 @@
-#define VERSION "v0.2.4-5-g24cdf41"
+#define LIBHAC_VERSION "v0.2.4-6-ge519468"
