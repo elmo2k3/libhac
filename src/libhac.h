@@ -81,6 +81,7 @@ struct _rgb
 struct _hadState
 {
 	struct _rgb rgbModuleValues[3]; /**< array holding current values of each light module */
+	struct _rgb rgbModuleValuesTemp[3]; /**< array holding current values of each light module */
 	uint8_t relais_state; /**< state of the relais */
 	uint8_t input_state; /**< state of the input port */
 	uint16_t last_voltage[3]; /**< last voltage values of rf modules */
