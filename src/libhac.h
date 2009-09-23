@@ -302,6 +302,7 @@ extern void setHr20AutoTemperature(int slot, int temperature);
  * \param mode 1 for manual, 2 for automatic control
  *******************************************************************************/
 extern void setHr20Mode(int8_t mode);
+extern void openDoor(void);
 
 extern char *libhacVersion(void);
 
