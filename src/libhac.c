@@ -80,6 +80,16 @@ void setBaseLcdOn()
 	}
 }
 
+void openDoor()
+{
+	int command;
+	if(connected)
+	{
+		command = CMD_NETWORK_OPEN_DOOR;
+		send(client_sock, &command, 1, 0);
+	}
+}
+
 void setBaseLcdOff()
 {
 	int command;
@@ -271,17 +281,17 @@ void setRgbValues(int red, int green, int blue, int smoothness)
 	if(connected)
 	{
 		/* Modul 1 */
-		rgbPacket.headP.address = 1;
+		rgbPacket.headP.address = 16;
 		send(client_sock, &command, 1, 0);
 		send(client_sock, &rgbPacket, sizeof(rgbPacket), 0);
 		
 		/* Modul 2 */
-		rgbPacket.headP.address = 3;
+		rgbPacket.headP.address = 17;
 		send(client_sock, &command, 1, 0);
 		send(client_sock, &rgbPacket, sizeof(rgbPacket), 0);
 		
 		/* Modul 3 */
-		rgbPacket.headP.address = 4;
+		rgbPacket.headP.address = 18;
 		send(client_sock, &command, 1, 0);
 		send(client_sock, &rgbPacket, sizeof(rgbPacket), 0);
 	}
