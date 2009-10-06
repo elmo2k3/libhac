@@ -222,6 +222,58 @@ void setScrobblerOn()
 	setHadState(hadState);
 }
 
+int getDoorBeepState()
+{
+	struct _hadState hadState;
+
+	getHadState(&hadState);
+	return hadState.beep_on_door_opened;
+}
+
+int getWindowBeepState()
+{
+	struct _hadState hadState;
+
+	getHadState(&hadState);
+	return hadState.beep_on_window_left_open;
+}
+
+void setDoorBeepOn()
+{
+	struct _hadState hadState;
+
+	getHadState(&hadState);
+	hadState.beep_on_door_opened = 1;
+	setHadState(hadState);
+}
+
+void setDoorBeepOff()
+{
+	struct _hadState hadState;
+
+	getHadState(&hadState);
+	hadState.beep_on_door_opened = 0;
+	setHadState(hadState);
+}
+
+void setWindowBeepOn()
+{
+	struct _hadState hadState;
+
+	getHadState(&hadState);
+	hadState.beep_on_window_left_open = 1;
+	setHadState(hadState);
+}
+
+void setWindowBeepOff()
+{
+	struct _hadState hadState;
+
+	getHadState(&hadState);
+	hadState.beep_on_window_left_open = 0;
+	setHadState(hadState);
+}
+
 uint8_t getRelaisState()
 {
 	struct _hadState hadState;
